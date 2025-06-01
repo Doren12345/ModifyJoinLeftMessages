@@ -1,4 +1,12 @@
+# 這裡可以使用 MiniMessage (僅支援1.19+，低於此版本不保證運作)。。
 # 這裡可以直接調整玩家的加入與退出訊息，{player}佔位符會自動替換成該玩家的ID。
 # 請注意，這些訊息會替代原生Minecraft的黃色加入退出訊息。
-join-message: "&aWelcome &b{player} &aJoin the Server!"
-quit-message: "&c{player} CYA!"
+join-message: "<yellow>{player} 加入了遊戲</yellow>"
+quit-message: "<yellow>{player} 離開了遊戲</yellow>"
+
+
+# 這裡可以使用 MiniMessage (僅支援1.19+，低於此版本不保證運作)。
+messages:
+  no-permission: "<red>你沒有權限執行這個指令。</red>"
+  reload-success: "<green>插件配置已成功重新加載！</green>"
+  wrong-usage: "<red>找不到指令，請使用</red> <white>/mjlm reload</white> <red>來重新加載配置。</red>"

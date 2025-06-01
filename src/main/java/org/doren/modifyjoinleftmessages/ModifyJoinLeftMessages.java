@@ -1,75 +1,113 @@
 package org.doren.modifyjoinleftmessages;
 
+import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class ModifyJoinLeftMessages extends JavaPlugin implements Listener {
+
+    private final MiniMessage mini = MiniMessage.miniMessage();
+    private final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacySection();
+    private boolean useComponentAPI;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(this, this);
-        getLogger().info("ModifyJoinLeftMessages enabled.");
+        useComponentAPI = supportsComponentMessages();
+        getLogger().info("ModifyJoinLeftMessages enabled. Using Component API: " + useComponentAPI);
     }
 
     @EventHandler
     @SuppressWarnings("deprecation")
     public void onPlayerJoin(PlayerJoinEvent event) {
-        String msg = formatMessage("join-message", event.getPlayer());
-        event.setJoinMessage(msg);
+        if (useComponentAPI) {
+            event.joinMessage(formatComponent("join-message", event.getPlayer()));
+        } else {
+            event.setJoinMessage(formatLegacy("join-message", event.getPlayer()));
+        }
     }
 
     @EventHandler
     @SuppressWarnings("deprecation")
     public void onPlayerQuit(PlayerQuitEvent event) {
-        String msg = formatMessage("quit-message", event.getPlayer());
-        event.setQuitMessage(msg);
+        if (useComponentAPI) {
+            event.quitMessage(formatComponent("quit-message", event.getPlayer()));
+        } else {
+            event.setQuitMessage(formatLegacy("quit-message", event.getPlayer()));
+        }
     }
 
-    private String formatMessage(String key, Player player) {
+    private Component formatComponent(String key, Player player) {
+        String raw = formatRaw(key, player);
+        return mini.deserialize(raw);
+    }
+
+    private String formatLegacy(String key, Player player) {
+        String raw = formatRaw(key, player);
+        String legacyText = legacy.serialize(mini.deserialize(raw));
+        return ChatColor.translateAlternateColorCodes('&', legacyText.replace('§', '&'));
+    }
+
+    private String formatRaw(String key, Player player) {
         String msg = getConfig().getString(key, "").replace("{player}", player.getName());
-        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) msg = PlaceholderAPI.setPlaceholders(player, msg);
-        msg = translateHexColors(msg);
-        return ChatColor.translateAlternateColorCodes('&', msg);
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            msg = PlaceholderAPI.setPlaceholders(player, msg);
+        }
+        return msg;
+    }
+
+    private boolean supportsComponentMessages() {
+        try {
+            PlayerJoinEvent.class.getMethod("joinMessage", Component.class);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    private void sendMessage(CommandSender sender, String configKey) {
+        String raw = getConfig().getString("messages." + configKey, "");
+        if (useComponentAPI && sender instanceof Player) {
+            Component msg = mini.deserialize(raw);
+            sender.sendMessage(msg);
+        } else {
+            String legacyText = legacy.serialize(mini.deserialize(raw));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', legacyText.replace('§', '&')));
+        }
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (!command.getName().equalsIgnoreCase("mjlm")) return false;
 
+        if (!sender.hasPermission("modifyjoinleftmessages.base")) {
+            sendMessage(sender, "no-permission");
+            return true;
+        }
+
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-            if (sender.hasPermission("mjlm.reload") || sender.isOp()) {
+            if (sender.hasPermission("modifyjoinleftmessages.reload") || sender.isOp()) {
                 reloadConfig();
-                sender.sendMessage(ChatColor.GREEN + "配置重新加載完成。");
+                sendMessage(sender, "reload-success");
             } else {
-                sender.sendMessage(ChatColor.RED + "您沒有權限。");
+                sendMessage(sender, "no-permission");
             }
         } else {
-            sender.sendMessage(ChatColor.YELLOW + "用法: /mjlm reload");
+            sendMessage(sender, "wrong-usage");
         }
         return true;
-    }
-
-    private String translateHexColors(String message) {
-        Matcher matcher = Pattern.compile("#([A-Fa-f0-9]{6})").matcher(message);
-        StringBuffer buffer = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of(matcher.group()).toString());
-        }
-        matcher.appendTail(buffer);
-        return buffer.toString();
     }
 }
