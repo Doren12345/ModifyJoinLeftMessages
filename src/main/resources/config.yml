@@ -1,0 +1,4 @@
+# 這裡可以直接調整玩家的加入與退出訊息，{player}佔位符會自動替換成該玩家的ID。
+# 請注意，這些訊息會替代原生Minecraft的黃色加入退出訊息。
+join-message: "&aWelcome &b{player} &aJoin the Server!"
+quit-message: "&c{player} CYA!"

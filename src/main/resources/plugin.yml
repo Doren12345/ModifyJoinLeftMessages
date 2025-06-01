@@ -1,0 +1,15 @@
+name: ModifyJoinLeftMessages
+version: '${project.version}'
+main: org.doren.modifyjoinleftmessages.ModifyJoinLeftMessages
+api-version: '1.16'
+softdepend: [PlaceholderAPI]
+commands:
+  mjlm:
+    description: 重新加载插件配置的命令
+    usage: /mjlm reload
+    permission: mjlm.reload
+    permission-message: "&c你沒有權限執行這個指令。"
+permissions:
+  mjlm.reload:
+    description: 允許玩家重新加載插件配置
+    default: op
