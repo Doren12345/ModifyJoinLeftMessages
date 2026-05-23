@@ -1,0 +1,6 @@
+{
+  "id": "modifyjoinleftmessages",
+  "name": "ModifyJoinLeftMessages",
+  "version": "${project.version}",
+  "main": "org.doren.modifyjoinleftmessages.ModifyJoinLeftMessagesVelocity"
+}

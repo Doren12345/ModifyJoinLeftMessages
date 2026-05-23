@@ -5,11 +5,13 @@ api-version: '1.16'
 softdepend: [PlaceholderAPI]
 commands:
   mjlm:
-    description: 重新加载插件配置的命令
+    description: Reload ModifyJoinLeftMessages config
     usage: /mjlm reload
-    permission: mjlm.reload
-    permission-message: "&c你沒有權限執行這個指令。"
+    permission: modifyjoinleftmessages.reload
 permissions:
-  mjlm.reload:
-    description: 允許玩家重新加載插件配置
+  modifyjoinleftmessages.base:
+    description: Access ModifyJoinLeftMessages commands
+    default: true
+  modifyjoinleftmessages.reload:
+    description: Reload ModifyJoinLeftMessages config
     default: op

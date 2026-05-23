@@ -1,9 +1,20 @@
-# 這裡可以使用 MiniMessage (僅支援1.19+，低於此版本不保證運作)。。
+# 這裡可以使用 MiniMessage (僅支援1.19+，低於此版本不保證運作)、PAPI。
 # 這裡可以直接調整玩家的加入與退出訊息，{player}佔位符會自動替換成該玩家的ID。
 # 請注意，這些訊息會替代原生Minecraft的黃色加入退出訊息。
-join-message: "<yellow>{player} 加入了遊戲</yellow>"
-quit-message: "<yellow>{player} 離開了遊戲</yellow>"
+# 您可以使用 \n 來換行。
+join:
+  enabled: true # 關閉則無訊息
+  message: "<yellow>{player} 加入了遊戲</yellow>"
+first-join:
+  enabled: true
+  message: "<yellow>{player} 加入了遊戲</yellow>"
+quit:
+  enabled: true
+  message: "<yellow>{player} 離開了遊戲</yellow>"
 
+# 若使用 bungeecord 或 velocity，則依照整個代理伺服器進行玩家加入退出公告。
+# 需要將此插件安裝至您的 bungeecord 或 velocity
+proxy-only: true
 
 # 這裡可以使用 MiniMessage (僅支援1.19+，低於此版本不保證運作)。
 messages:
