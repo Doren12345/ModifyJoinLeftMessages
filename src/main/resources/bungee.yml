@@ -1,0 +1,4 @@
+name: ModifyJoinLeftMessages
+version: '${project.version}'
+main: org.doren.modifyjoinleftmessages.ModifyJoinLeftMessagesBungee
+author: Doren
