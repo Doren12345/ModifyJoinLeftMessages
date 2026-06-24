@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -49,6 +50,15 @@ public final class ModifyJoinLeftMessagesBungee extends Plugin implements Listen
         broadcast("quit", event.getPlayer());
     }
 
+    @EventHandler
+    public void onPlayerSwitchServer(ServerSwitchEvent event) {
+        if (!isMessageEnabled("swap-server") || event.getFrom() == null || event.getPlayer().getServer() == null) {
+            return;
+        }
+        broadcastServerSwitch(event.getPlayer(), event.getFrom().getName(),
+                event.getPlayer().getServer().getInfo().getName());
+    }
+
     private void broadcast(String key, ProxiedPlayer player) {
         String raw = formatter.replacePlayer(getMessage(key), player.getName());
         if (raw.isEmpty()) {
@@ -59,6 +69,24 @@ public final class ModifyJoinLeftMessagesBungee extends Plugin implements Listen
         for (ProxiedPlayer onlinePlayer : ProxyServer.getInstance().getPlayers()) {
             onlinePlayer.sendMessage(message);
         }
+    }
+
+    private void broadcastServerSwitch(ProxiedPlayer player, String oldServer, String newServer) {
+        String raw = formatter.replacePlayer(getMessage("swap-server"), player.getName())
+                .replace("{old_server}", getServerDisplayName(oldServer))
+                .replace("{new_server}", getServerDisplayName(newServer));
+        if (raw.isEmpty()) {
+            return;
+        }
+        BaseComponent[] message = TextComponent.fromLegacyText(formatter.formatLegacy(raw));
+        ProxyServer.getInstance().getConsole().sendMessage(message);
+        for (ProxiedPlayer onlinePlayer : ProxyServer.getInstance().getPlayers()) {
+            onlinePlayer.sendMessage(message);
+        }
+    }
+
+    private String getServerDisplayName(String serverName) {
+        return config.getString("messages.server-name." + serverName, serverName);
     }
 
     private boolean markSeen(ProxiedPlayer player) {
@@ -123,6 +151,9 @@ public final class ModifyJoinLeftMessagesBungee extends Plugin implements Listen
         }
         if ("quit".equals(key)) {
             return config.getString("quit-message", "");
+        }
+        if ("swap-server".equals(key)) {
+            return config.getString("swap-server-message", "");
         }
         return config.getString(key, "");
     }

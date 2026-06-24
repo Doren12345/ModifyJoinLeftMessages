@@ -14,6 +14,10 @@ first-join:
 quit:
   enabled: true
   message: "<yellow>{player} 離開了遊戲</yellow>"
+# 僅限 proxy-only 模式使用
+swap-server:
+  enabled: true # 關閉則無訊息
+  message: "<yellow>{player} 從 {old_server} 分流切換到 {new_server} 分流</yellow>"
 
 # 若使用 bungeecord 或 velocity，則依照整個代理伺服器進行玩家加入退出公告。
 # 需要將此插件安裝至您的 bungeecord 或 velocity
@@ -21,6 +25,8 @@ proxy-only: false
 
 # 這裡可以使用 MiniMessage (僅支援1.19+，低於此版本不保證運作)。
 messages:
+  server-name:
+    main: "<gold>主要"
   no-permission: "<red>你沒有權限執行這個指令。</red>"
   reload-success: "<green>插件配置已成功重新加載！</green>"
   wrong-usage: "<red>找不到指令，請使用</red> <white>/mjlm reload</white> <red>來重新加載配置。</red>"

@@ -5,6 +5,7 @@ import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
+import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
@@ -64,6 +65,15 @@ public final class ModifyJoinLeftMessagesVelocity {
         broadcast("quit", event.getPlayer());
     }
 
+    @Subscribe
+    public void onPlayerSwitchServer(ServerConnectedEvent event) {
+        if (!isMessageEnabled("swap-server") || event.getPreviousServer().isEmpty()) {
+            return;
+        }
+        broadcastServerSwitch(event.getPlayer(), event.getPreviousServer().get().getServerInfo().getName(),
+                event.getServer().getServerInfo().getName());
+    }
+
     private void broadcast(String key, Player player) {
         String raw = formatter.replacePlayer(getMessage(key), player.getUsername());
         if (raw.isEmpty()) {
@@ -72,6 +82,22 @@ public final class ModifyJoinLeftMessagesVelocity {
         var message = formatter.formatComponent(raw);
         proxyServer.getConsoleCommandSource().sendMessage(message);
         proxyServer.getAllPlayers().forEach(onlinePlayer -> onlinePlayer.sendMessage(message));
+    }
+
+    private void broadcastServerSwitch(Player player, String oldServer, String newServer) {
+        String raw = formatter.replacePlayer(getMessage("swap-server"), player.getUsername())
+                .replace("{old_server}", getServerDisplayName(oldServer))
+                .replace("{new_server}", getServerDisplayName(newServer));
+        if (raw.isEmpty()) {
+            return;
+        }
+        var message = formatter.formatComponent(raw);
+        proxyServer.getConsoleCommandSource().sendMessage(message);
+        proxyServer.getAllPlayers().forEach(onlinePlayer -> onlinePlayer.sendMessage(message));
+    }
+
+    private String getServerDisplayName(String serverName) {
+        return config.getString("messages.server-name." + serverName, serverName);
     }
 
     private boolean markSeen(Player player) {
@@ -136,6 +162,9 @@ public final class ModifyJoinLeftMessagesVelocity {
         }
         if ("quit".equals(key)) {
             return config.getString("quit-message", "");
+        }
+        if ("swap-server".equals(key)) {
+            return config.getString("swap-server-message", "");
         }
         return config.getString(key, "");
     }
