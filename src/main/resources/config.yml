@@ -17,7 +17,7 @@ quit:
 
 # 若使用 bungeecord 或 velocity，則依照整個代理伺服器進行玩家加入退出公告。
 # 需要將此插件安裝至您的 bungeecord 或 velocity
-proxy-only: true
+proxy-only: false
 
 # 這裡可以使用 MiniMessage (僅支援1.19+，低於此版本不保證運作)。
 messages:
