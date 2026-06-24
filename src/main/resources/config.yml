@@ -1,3 +1,6 @@
+# 更改完設定之後，請使用 /mjlm reload 重新加載設定。
+# 該指令需要權限 modifyjoinleftmessages.base 與 modifyjoinleftmessages.reload。
+
 # 這裡可以使用 MiniMessage (僅支援1.19+，低於此版本不保證運作)、PAPI。
 # 這裡可以直接調整玩家的加入與退出訊息，{player}佔位符會自動替換成該玩家的ID。
 # 請注意，這些訊息會替代原生Minecraft的黃色加入退出訊息。
